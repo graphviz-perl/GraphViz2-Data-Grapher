@@ -30,14 +30,6 @@ has graph =>
 	required => 0,
 );
 
-has logger =>
-(
-	default  => sub{return ''},
-	is       => 'rw',
-	#isa     => 'Log::Handler',
-	required => 0,
-);
-
 has tree =>
 (
 	default  => sub{return Tree::DAG_Node -> new},
@@ -117,7 +109,6 @@ sub BUILD
 			edge   => {color => 'grey'},
 			global => {directed => 1},
 			graph  => {rankdir => 'TB'},
-			logger => $self -> logger,
 			node   => {color => 'blue', shape => 'oval'},
 		)
 	);
@@ -352,22 +343,6 @@ L<GraphViz2::Data::Grapher> - Visualize a data structure as a graph
 	use GraphViz2;
 	use GraphViz2::Data::Grapher;
 
-	use Log::Handler;
-
-	# ------------------------------------------------
-
-	my($logger) = Log::Handler -> new;
-
-	$logger -> add
-		(
-		 screen =>
-		 {
-			 maxlevel       => 'debug',
-			 message_layout => '%m',
-			 minlevel       => 'error',
-		 }
-		);
-
 	my($sub) = sub{};
 	my($s)   =
 	{
@@ -402,11 +377,10 @@ L<GraphViz2::Data::Grapher> - Visualize a data structure as a graph
 		 edge   => {color => 'grey'},
 		 global => {directed => 1},
 		 graph  => {rankdir => 'TB'},
-		 logger => $logger,
 		 node   => {color => 'blue', shape => 'oval'},
 		);
 
-	my($g)           = GraphViz2::Data::Grapher -> new(graph => $graph, logger => $logger);
+	my($g)           = GraphViz2::Data::Grapher->new(graph => $graph);
 	my($format)      = shift || 'svg';
 	my($output_file) = shift || File::Spec -> catfile('html', "parse.data.$format");
 
@@ -473,16 +447,6 @@ The default is GraphViz2 -> new. The default attributes are the same as in the s
 except for the graph label of course.
 
 This key is optional.
-
-=item o logger => $logger_object
-
-Provides a logger object so $logger_object -> $level($message) can be called at certain times.
-
-Retrieve and update the value with the logger() method.
-
-The default is ''.
-
-At the moment, the logger object is not used. This feature is mainly used for testing.
 
 =back
 
