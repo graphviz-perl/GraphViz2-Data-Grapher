@@ -4,14 +4,12 @@ use strict;
 use warnings;
 use warnings  qw(FATAL utf8); # Fatalize encoding glitches.
 
+our $VERSION = '2.49';
+
 use GraphViz2;
-
 use HTML::Entities::Interpolate;
-
 use Moo;
-
 use Scalar::Util qw(blessed reftype);
-
 use Tree::DAG_Node;
 
 has current =>
@@ -24,7 +22,14 @@ has current =>
 
 has graph =>
 (
-	default  => sub{return ''},
+	default  => sub {
+		GraphViz2->new(
+			edge   => {color => 'grey'},
+			global => {directed => 1},
+			graph  => {rankdir => 'TB'},
+			node   => {color => 'blue', shape => 'oval'},
+		)
+        },
 	is       => 'rw',
 	#isa     => 'GraphViz2',
 	required => 0,
@@ -37,8 +42,6 @@ has tree =>
 	#isa     => 'Tree::DAG_Node',
 	required => 0,
 );
-
-our $VERSION = '2.49';
 
 # -----------------------------------------------
 # This is a function.
@@ -95,23 +98,9 @@ sub add_record
 
 } # End of add_record;
 
-# -----------------------------------------------
-
 sub BUILD
 {
 	my($self) = @_;
-
-	$self -> graph
-	(
-		$self -> graph ||
-		GraphViz2 -> new
-		(
-			edge   => {color => 'grey'},
-			global => {directed => 1},
-			graph  => {rankdir => 'TB'},
-			node   => {color => 'blue', shape => 'oval'},
-		)
-	);
 
 	# Make the root the 'current' node.
 	# get_reftype() will use current().
@@ -119,8 +108,6 @@ sub BUILD
 	$self -> current($self -> tree);
 
 } # End of BUILD.
-
-# -----------------------------------------------
 
 sub build_graph
 {
