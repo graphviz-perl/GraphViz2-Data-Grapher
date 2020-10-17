@@ -169,14 +169,8 @@ sub build_tree
 
 	if (defined $ref)
 	{
-		my($blessed) = blessed $item;
-
-		if ($blessed)
-		{
-			$daughter = Tree::DAG_Node -> new;
-
-			$daughter -> name($blessed);
-			$self -> current -> add_daughter($daughter);
+		if (my $blessed = blessed $item) {
+			$self -> current -> new_daughter({name => $blessed});
 			$self -> current -> name($blessed);
 		}
 		elsif ($ref =~ /^ARRAY/)
@@ -186,20 +180,14 @@ sub build_tree
 			for my $key (@$item)
 			{
 				$current  = $self -> current;
-				$daughter = Tree::DAG_Node -> new;
-
-				$self -> current -> add_daughter($daughter);
-				$self -> current($daughter);
+				$self->current($current->new_daughter);
 				$self -> build_tree(_gen_id($item), $key);
 				$self -> current($current);
 			}
 		}
 		elsif ($ref =~ /^CODE/)
 		{
-			$daughter = Tree::DAG_Node -> new;
-
-			$daughter -> name('&' . _gen_id $item);
-			$self -> current -> add_daughter($daughter);
+			$self->current->new_daughter({name => '&' . _gen_id $item});
 			$self -> current -> name('$' . $name);
 		}
 		elsif ($ref =~ /^HASH/)
@@ -208,40 +196,29 @@ sub build_tree
 
 			for my $key (sort keys %$item)
 			{
-				$current  = $self -> current;
-				$daughter = Tree::DAG_Node -> new;
-
-				$self -> current -> add_daughter($daughter);
-				$self -> current($daughter);
-				$self -> build_tree($key, $key);
-
-				$daughter = Tree::DAG_Node -> new;
-
-				$self -> current -> add_daughter($daughter);
-				$self -> current($daughter);
-				$self -> build_tree($key, $$item{$key});
-				$self -> current($current);
+				$current = $self->current;
+				$self->current($current->new_daughter);
+				$self->build_tree($key, $key);
+				$self->current($self->current->new_daughter);
+				$self->build_tree($key, $$item{$key});
+				$self->current($current);
 			}
 		}
 		elsif ($ref =~ /^SCALAR/)
 		{
-			$self -> current -> name("\$ " . _gen_id($item) . " - Not used");
+			$self->current->name("\$ " . _gen_id($item) . " - Not used");
 		}
 		elsif ($ref)
 		{
-			$self -> current -> name("Object: $name");
-
-			$current  = $self -> current;
-			$daughter = Tree::DAG_Node -> new;
-
-			$self -> current -> add_daughter($daughter);
-			$self -> current($daughter);
-			$self -> build_tree(_gen_id($item), $$item);
-			$self -> current($current);
+			$current = $self->current;
+			$current->name("Object: $name");
+			$self->current($current->new_daughter);
+			$self->build_tree(_gen_id($item), $$item);
+			$self->current($current);
 		}
 		else
 		{
-			$self -> current -> name(_gen_id($item) . " - Not used");
+			$self->current->name(_gen_id($item) . " - Not used");
 		}
 	}
 	else
