@@ -33,6 +33,7 @@ my $data = {
   },
   els => [qw(element_1 element_2 element_3)],
   obj => FakeObj->new,
+  scalar_ref => \'hello',
 };
 my $g_dg = GraphViz2::Data::Grapher->new;
 my $g = $g_dg->create(name => 's', thing => $data)->graph;

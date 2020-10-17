@@ -179,11 +179,19 @@
       'shape' => 'Mrecord'
     }
   },
+  '0_4_kids' => {
+    'attributes' => {
+      'color' => 'grey',
+      'fontcolor' => 'blue',
+      'label' => '<port1> $ SCALAR5 - Not used',
+      'shape' => 'Mrecord'
+    }
+  },
   '0_kids' => {
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
-      'label' => '<port1> A|<port2> C|<port3> els|<port4> obj',
+      'label' => '<port1> A|<port2> C|<port3> els|<port4> obj|<port5> scalar_ref',
       'shape' => 'Mrecord'
     }
   }

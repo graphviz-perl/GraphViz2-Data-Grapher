@@ -13,7 +13,7 @@
       {
         'attributes' => {},
         'from_port' => '',
-        'to_port' => ':port2'
+        'to_port' => ':port3'
       }
     ]
   },
@@ -204,6 +204,13 @@
       {
         'attributes' => {},
         'from_port' => ':port4',
+        'to_port' => ':port1'
+      }
+    ],
+    '0_4_kids' => [
+      {
+        'attributes' => {},
+        'from_port' => ':port5',
         'to_port' => ':port1'
       }
     ]
