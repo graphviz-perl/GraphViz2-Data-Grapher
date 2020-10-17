@@ -1,3 +1,5 @@
+- drop HTML::Entities::Interpolate
+
 2.50 2020-10-11
 - zap pointless logger attribute
 

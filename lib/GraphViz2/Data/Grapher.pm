@@ -7,7 +7,6 @@ use warnings  qw(FATAL utf8); # Fatalize encoding glitches.
 our $VERSION = '2.50';
 
 use GraphViz2;
-use HTML::Entities::Interpolate;
 use Moo;
 use Scalar::Util qw(blessed reftype);
 use Tree::DAG_Node;
@@ -71,15 +70,9 @@ sub add_record
 		$$seen{$node -> address} = 1;
 
 		$node -> attributes({record => "$name:port$port"});
-
-		# Comment out HTML labels since I can't get them to work.
-		# It seems only a shape of plaintext works with HTML.
-
-#		push @label, qq|<td border="0" port="port$port">| . $Entitize{$node -> name} . '</td>';
 		push @label, "<port$port> " . $node -> name;
 	}
 
-#	my($label) = '<<table border="0"><tr>' . join('', @label) . '</tr></table>>';
 	my($label) = join('|', @label);
 
 	if ( ($#node == 0) && ($node[0] -> name =~ /^(?:\&CODE|\$REF)/) )
