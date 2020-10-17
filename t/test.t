@@ -9,6 +9,11 @@ use File::Slurp; # For read_file().
 use File::Spec;
 use XML::Bare;
 
+{
+package FakeObj;
+sub new { bless {} }
+}
+
 my $sub = sub {};
 my $data = {
   A => {
@@ -27,6 +32,7 @@ my $data = {
     },
   },
   els => [qw(element_1 element_2 element_3)],
+  obj => FakeObj->new,
 };
 my $g_dg = GraphViz2::Data::Grapher->new;
 my $g = $g_dg->create(name => 's', thing => $data)->graph;

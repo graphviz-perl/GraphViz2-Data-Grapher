@@ -163,11 +163,27 @@
       'shape' => 'Mrecord'
     }
   },
+  '0_3_0_kids' => {
+    'attributes' => {
+      'color' => 'grey',
+      'fontcolor' => 'blue',
+      'label' => '<port1> FakeObj',
+      'shape' => 'Mrecord'
+    }
+  },
+  '0_3_kids' => {
+    'attributes' => {
+      'color' => 'grey',
+      'fontcolor' => 'blue',
+      'label' => '<port1> FakeObj',
+      'shape' => 'Mrecord'
+    }
+  },
   '0_kids' => {
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
-      'label' => '<port1> A|<port2> C|<port3> els',
+      'label' => '<port1> A|<port2> C|<port3> els|<port4> obj',
       'shape' => 'Mrecord'
     }
   }
