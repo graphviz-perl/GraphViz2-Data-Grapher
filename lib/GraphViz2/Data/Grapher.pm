@@ -47,78 +47,45 @@ sub address
 
 # -----------------------------------------------
 
-sub add_record
-{
-	my($self, $seen, $parent, @node) = @_;
-	my(@label) = ();
-	my($name)  = address($parent -> address) . '_kids';
-	my($port)  = 0;
-
-	for my $node (@node)
-	{
-		$port++;
-
-		$$seen{$node -> address} = 1;
-
-		$node -> attributes({record => "$name:port$port"});
-		push @label, "<port$port> " . $node -> name;
-	}
-
-	my($label) = join('|', @label);
-
-	if ( ($#node == 0) && ($node[0] -> name =~ /^(?:\&CODE|\$REF)/) )
-	{
-		$node[0] -> attributes({record => $node[0] -> name});
-	}
-	else
-	{
-		my(%global) = %{$self -> graph -> global};
-		my($shape)  = $global{record_shape};
-
-		$self -> graph -> add_node(color => 'grey', fontcolor => 'blue', name => $name, label => $label, shape => $shape);
-	}
-
-	return $self;
-
-} # End of add_record;
-
-sub build_graph
-{
-	my($self, $seen, $node) = @_;
-
-	my(@child)  = $node -> daughters;
-	my($mother) = $node -> mother;
-
-	if (@child)
-	{
+sub build_graph {
+	my ($graph, $seen, $node) = @_;
+	my @child = $node->daughters;
+	if (@child) {
 		# Add a 'record' type node for all children,
 		# except if the only child is a code ref or a ref,
 		# which we add below to make them stand out.
-
-		$self -> add_record($seen, $node, @child);
+		my @label;
+		my $name = address($node->address) . '_kids';
+		my $port = 0;
+		for my $node (@child) {
+			$port++;
+			$$seen{$node->address} = 1;
+			$node->attributes({record => "$name:port$port"});
+			push @label, "<port$port> " . $node -> name;
+		}
+		my($label) = join('|', @label);
+		my $one_ref = (@child == 1) && ($child[0]->name =~ /^(?:\&CODE|\$REF)/);
+		if ($one_ref) {
+			$child[0]->attributes({record => $child[0]->name});
+		} else {
+			$graph->add_node(color => 'grey', fontcolor => 'blue', name => $name, label => $label, shape => $graph->global->{record_shape});
+		}
 
 		# Add an edge from the parent to the middle of the child list.
 
-		my($child) = $child[int($#child / 2)];
-		$child     = $child[0] if ( ($#child == 0) && ($child[0] -> name =~ /^(?:\&CODE|\$REF)/) );
-		my($from)  = ${$node -> attributes}{record};
-		my($to)    = ${$child -> attributes}{record};
+		my $child = $child[int($#child / 2)];
+		my $from = $node->attributes->{record};
+		my $to = $child->attributes->{record};
 
-		if ( ($#child == 0) && ($child[0] -> name =~ /^(?:\&CODE|\$REF)/) )
-		{
-			$self -> graph -> add_node(color => 'grey', fontcolor => 'red', name => $child[0] -> name, shape => 'oval');
-		}
-
-		$self -> graph -> add_edge(from => $from, to => $to);
-
+		$graph->add_node(
+			name => $child[0]->name,
+			color => 'grey', fontcolor => 'red', shape => 'oval',
+		) if $one_ref;
+		$graph->add_edge(from => $from, to => $to);
 		# Recurse to handle the grandkids.
-
-		$self -> build_graph($seen, $_) for @child;
+		build_graph($graph, $seen, $_) for @child;
 	}
-
-	return $self;
-
-} # End of build_graph.
+}
 
 # -----------------------------------------------
 
@@ -209,7 +176,7 @@ sub create
 	my $a2 = address(my $a1 = $self->tree->address);
 	$self->tree->attributes({record => $a2});
 	$self->graph->add_node(color => 'green', name => $a2, label => $self->tree->name, shape => 'doubleoctagon');
-	$self->build_graph({$a1 => 1}, $self->tree);
+	build_graph($self->graph, {$a1 => 1}, $self->tree);
 	return $self;
 }
 
