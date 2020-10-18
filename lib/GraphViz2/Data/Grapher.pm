@@ -28,7 +28,6 @@ has graph =>
 
 has tree =>
 (
-	default  => sub{return Tree::DAG_Node -> new},
 	is       => 'rw',
 	#isa     => 'Tree::DAG_Node',
 	required => 0,
@@ -133,7 +132,8 @@ sub _gen_id {
 }
 
 sub build_tree {
-	my ($name, $item, $current) = @_;
+	my ($name, $item) = @_;
+	my $current = Tree::DAG_Node->new;
 	if (defined(my $ref = reftype $item)) {
 		if (my $blessed = blessed $item) {
 			$current->new_daughter({name => $blessed});
@@ -143,7 +143,7 @@ sub build_tree {
 		{
 			$current->name('@$' . $name);
 
-			build_tree(_gen_id($item), $_, $current->new_daughter) for @$item;
+			$current->add_daughter(build_tree(_gen_id($item), $_)) for @$item;
 		}
 		elsif ($ref =~ /^CODE/)
 		{
@@ -155,8 +155,8 @@ sub build_tree {
 			$current->name('%$' . $name);
 			for my $key (sort keys %$item)
 			{
-				build_tree($key, $key, my $d = $current->new_daughter);
-				build_tree($key, $$item{$key}, $d->new_daughter);
+				$current->add_daughter(my $d = build_tree($key, $key));
+				$d->add_daughter(build_tree($key, $$item{$key}));
 			}
 		}
 		elsif ($ref =~ /^SCALAR/)
@@ -166,13 +166,14 @@ sub build_tree {
 		else
 		{
 			$current->name("Object: $name");
-			build_tree(_gen_id($item), $$item, $current->new_daughter);
+			$current->add_daughter(build_tree(_gen_id($item), $$item));
 		}
 	}
 	else
 	{
 		$current->name($item);
 	}
+	$current;
 }
 
 # -----------------------------------------------
@@ -204,7 +205,7 @@ sub create
 		 },
 		);
 
-	build_tree($arg{name} => $arg{thing}, $self->tree);
+	$self->tree(build_tree($arg{name} => $arg{thing}));
 	my $a2 = address(my $a1 = $self->tree->address);
 	$self->tree->attributes({record => $a2});
 	$self->graph->add_node(color => 'green', name => $a2, label => $self->tree->name, shape => 'doubleoctagon');
