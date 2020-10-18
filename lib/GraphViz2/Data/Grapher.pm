@@ -153,59 +153,45 @@ sub _gen_id {
 
 sub build_tree
 {
-	my ($self, $name, $item) = @_;
-	my($current);
+	my ($self, $name, $item, $current) = @_;
 	if (defined(my $ref = reftype $item)) {
 		if (my $blessed = blessed $item) {
-			$self -> current -> new_daughter({name => $blessed});
-			$self -> current -> name($blessed);
+			$current->new_daughter({name => $blessed});
+			$current->name($blessed);
 		}
 		elsif ($ref =~ /^ARRAY/)
 		{
-			$self -> current -> name('@$' . $name);
+			$current->name('@$' . $name);
 
-			for my $key (@$item)
-			{
-				$current  = $self -> current;
-				$self->current($current->new_daughter);
-				$self -> build_tree(_gen_id($item), $key);
-				$self -> current($current);
-			}
+			$self->build_tree(_gen_id($item), $_, $current->new_daughter) for @$item;
 		}
 		elsif ($ref =~ /^CODE/)
 		{
-			$self->current->new_daughter({name => '&' . _gen_id $item});
-			$self -> current -> name('$' . $name);
+			$current->new_daughter({name => '&' . _gen_id $item});
+			$current->name('$' . $name);
 		}
 		elsif ($ref =~ /^HASH/)
 		{
-			$self -> current -> name('%$' . $name);
+			$current->name('%$' . $name);
 			for my $key (sort keys %$item)
 			{
-				$current = $self->current;
-				$self->current($current->new_daughter);
-				$self->build_tree($key, $key);
-				$self->current($self->current->new_daughter);
-				$self->build_tree($key, $$item{$key});
-				$self->current($current);
+				$self->build_tree($key, $key, my $d = $current->new_daughter);
+				$self->build_tree($key, $$item{$key}, $d->new_daughter);
 			}
 		}
 		elsif ($ref =~ /^SCALAR/)
 		{
-			$self->current->name("\$ " . _gen_id($item) . " - Not used");
+			$current->name("\$ " . _gen_id($item) . " - Not used");
 		}
 		else
 		{
-			$current = $self->current;
 			$current->name("Object: $name");
-			$self->current($current->new_daughter);
-			$self->build_tree(_gen_id($item), $$item);
-			$self->current($current);
+			$self->build_tree(_gen_id($item), $$item, $current->new_daughter);
 		}
 	}
 	else
 	{
-		$self -> current -> name($item);
+		$current->name($item);
 	}
 
 	return $self;
@@ -241,7 +227,7 @@ sub create
 		 },
 		);
 
-	$self -> build_tree($arg{name} => $arg{thing});
+	$self->build_tree($arg{name} => $arg{thing}, $self->current);
 	$self -> tree -> attributes({record => address($self -> tree -> address)});
 	$self -> graph -> add_node(color => 'green', name => address($self -> tree -> address), label => $self -> tree -> name, shape => 'doubleoctagon');
 	$self -> build_graph({$self -> tree -> address => 1}, $self -> tree);
