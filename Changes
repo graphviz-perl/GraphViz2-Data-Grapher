@@ -1,4 +1,5 @@
 - drop HTML::Entities::Interpolate
+- stop mutating tree object with "record" stuff
 
 2.50 2020-10-11
 - zap pointless logger attribute

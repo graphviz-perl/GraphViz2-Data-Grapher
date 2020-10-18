@@ -45,26 +45,17 @@ sub address
 
 } # End of address;
 
-# -----------------------------------------------
-
 sub build_graph {
-	my ($graph, $tree) = @_;
+	my ($graph, $tree, $from) = @_;
 	return unless my @child = $tree->daughters;
-	# Add a 'record' type node for all children,
-	# except if the only child is a code ref or a ref,
-	# which we add below to make them stand out.
-	my @label;
+	my @label = map $_->name, @child;
 	my $name = address($tree->address) . '_kids';
-	my $port = 0;
-	for my $node (@child) {
-		$port++;
-		$node->attributes({record => "$name:port$port"});
-		push @label, $node->name;
-	}
-	if ((@child == 1) && ($child[0]->name =~ /^(?:\&CODE|\$REF)/)) {
-		$child[0]->attributes({record => $child[0]->name});
+	my $to = "$name:port" . (int($#child / 2) + 1);
+	my $one_ref = (@child == 1) && ($child[0]->name =~ /^(?:\&CODE|\$REF)/);
+	if ($one_ref) {
+		$to = $label[0];
 		$graph->add_node(
-			name => $child[0]->name,
+			name => $to,
 			color => 'grey', fontcolor => 'red',
 			shape => 'oval',
 		);
@@ -75,18 +66,12 @@ sub build_graph {
 			shape => $graph->global->{record_shape},
 		);
 	}
-
 	# Add an edge from the parent to the middle of the child list.
-	my $child = $child[int($#child / 2)];
-	my $from = $tree->attributes->{record};
-	my $to = $child->attributes->{record};
-
 	$graph->add_edge(from => $from, to => $to);
 	# Recurse to handle the grandkids.
-	build_graph($graph, $_) for @child;
+	my $port = 0;
+	build_graph($graph, $_, ($one_ref ? $to : "$name:port".++$port)) for @child;
 }
-
-# -----------------------------------------------
 
 # gives stable sequential ID number for references
 my %ref2id;
@@ -173,9 +158,8 @@ sub create
 
 	$self->tree(build_tree($arg{name} => $arg{thing}));
 	my $a2 = address(my $a1 = $self->tree->address);
-	$self->tree->attributes({record => $a2});
 	$self->graph->add_node(color => 'green', name => $a2, label => $self->tree->name, shape => 'doubleoctagon');
-	build_graph($self->graph, $self->tree);
+	build_graph($self->graph, $self->tree, $a2);
 	return $self;
 }
 
@@ -340,9 +324,6 @@ Returns the graph object, either the one supplied to new() or the one created du
 =head2 tree()
 
 Returns the tree object (of type L<Tree::DAG_Node>) built before it is traversed to generate the nodes and edges.
-
-Traversal does change the attributes of nodes, by storing {record => $string} there, so that
-edges can be plotted from a parent to its daughters.
 
 Warning: As the L<GraphViz2::Data::Grapher> object exits its scope, $self -> tree -> delete_tree is called.
 
