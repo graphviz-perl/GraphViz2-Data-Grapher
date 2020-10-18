@@ -167,11 +167,19 @@
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
-      'label' => '<port1> FakeObj',
+      'label' => '<port1> *main::main::',
       'shape' => 'Mrecord'
     }
   },
   '0_3_kids' => {
+    'attributes' => {
+      'color' => 'grey',
+      'fontcolor' => 'blue',
+      'label' => '<port1> Object: glob_ref',
+      'shape' => 'Mrecord'
+    }
+  },
+  '0_4_0_kids' => {
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
@@ -183,7 +191,15 @@
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
-      'label' => '<port1> $ SCALAR5 - Not used',
+      'label' => '<port1> FakeObj',
+      'shape' => 'Mrecord'
+    }
+  },
+  '0_5_kids' => {
+    'attributes' => {
+      'color' => 'grey',
+      'fontcolor' => 'blue',
+      'label' => '<port1> $ SCALAR6 - Not used',
       'shape' => 'Mrecord'
     }
   },
@@ -191,7 +207,7 @@
     'attributes' => {
       'color' => 'grey',
       'fontcolor' => 'blue',
-      'label' => '<port1> A|<port2> C|<port3> els|<port4> obj|<port5> scalar_ref',
+      'label' => '<port1> A|<port2> C|<port3> els|<port4> glob_ref|<port5> obj|<port6> scalar_ref',
       'shape' => 'Mrecord'
     }
   }

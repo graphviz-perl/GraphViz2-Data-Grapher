@@ -32,6 +32,7 @@ my $data = {
     },
   },
   els => [qw(element_1 element_2 element_3)],
+  glob_ref => \*main::,
   obj => FakeObj->new,
   scalar_ref => \'hello',
 };

@@ -178,6 +178,15 @@
       }
     ]
   },
+  '0_4_kids' => {
+    '0_4_0_kids' => [
+      {
+        'attributes' => {},
+        'from_port' => ':port1',
+        'to_port' => ':port1'
+      }
+    ]
+  },
   '0_kids' => {
     '0_0_kids' => [
       {
@@ -211,6 +220,13 @@
       {
         'attributes' => {},
         'from_port' => ':port5',
+        'to_port' => ':port1'
+      }
+    ],
+    '0_5_kids' => [
+      {
+        'attributes' => {},
+        'from_port' => ':port6',
         'to_port' => ':port1'
       }
     ]
