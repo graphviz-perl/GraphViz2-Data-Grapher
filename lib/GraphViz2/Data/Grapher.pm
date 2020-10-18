@@ -201,17 +201,13 @@ sub build_tree
 		{
 			$self->current->name("\$ " . _gen_id($item) . " - Not used");
 		}
-		elsif ($ref)
+		else
 		{
 			$current = $self->current;
 			$current->name("Object: $name");
 			$self->current($current->new_daughter);
 			$self->build_tree(_gen_id($item), $$item);
 			$self->current($current);
-		}
-		else
-		{
-			$self->current->name(_gen_id($item) . " - Not used");
 		}
 	}
 	else
