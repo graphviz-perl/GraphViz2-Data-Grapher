@@ -163,18 +163,6 @@ sub create
 	return $self;
 }
 
-# -----------------------------------------------
-
-sub DESTROY
-{
-	my($self) = @_;
-
-	$self -> tree -> delete_tree;
-
-} # End of DESTROY.
-
-# -----------------------------------------------
-
 1;
 
 =pod
@@ -324,8 +312,6 @@ Returns the graph object, either the one supplied to new() or the one created du
 =head2 tree()
 
 Returns the tree object (of type L<Tree::DAG_Node>) built before it is traversed to generate the nodes and edges.
-
-Warning: As the L<GraphViz2::Data::Grapher> object exits its scope, $self -> tree -> delete_tree is called.
 
 =head1 Scripts Shipped with this Module
 
