@@ -153,15 +153,9 @@ sub _gen_id {
 
 sub build_tree
 {
-	my($self, $name, $item) = @_;
-
+	my ($self, $name, $item) = @_;
 	my($current);
-	my($daughter);
-
-	my($ref) = reftype $item;
-
-	if (defined $ref)
-	{
+	if (defined(my $ref = reftype $item)) {
 		if (my $blessed = blessed $item) {
 			$self -> current -> new_daughter({name => $blessed});
 			$self -> current -> name($blessed);
@@ -186,7 +180,6 @@ sub build_tree
 		elsif ($ref =~ /^HASH/)
 		{
 			$self -> current -> name('%$' . $name);
-
 			for my $key (sort keys %$item)
 			{
 				$current = $self->current;
@@ -217,7 +210,7 @@ sub build_tree
 
 	return $self;
 
-} # End of build_tree.
+}
 
 # -----------------------------------------------
 
