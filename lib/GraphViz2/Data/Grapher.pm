@@ -11,14 +11,6 @@ use Moo;
 use Scalar::Util qw(blessed reftype);
 use Tree::DAG_Node;
 
-has current =>
-(
-	default  => sub{return ''},
-	is       => 'rw',
-	#isa     => 'Str',
-	required => 0,
-);
-
 has graph =>
 (
 	default  => sub {
@@ -91,17 +83,6 @@ sub add_record
 
 } # End of add_record;
 
-sub BUILD
-{
-	my($self) = @_;
-
-	# Make the root the 'current' node.
-	# get_reftype() will use current().
-
-	$self -> current($self -> tree);
-
-} # End of BUILD.
-
 sub build_graph
 {
 	my($self, $seen, $node) = @_;
@@ -151,9 +132,8 @@ sub _gen_id {
   $ref2id{$ref} = ref($ref) . ++$ref_counter;
 }
 
-sub build_tree
-{
-	my ($self, $name, $item, $current) = @_;
+sub build_tree {
+	my ($name, $item, $current) = @_;
 	if (defined(my $ref = reftype $item)) {
 		if (my $blessed = blessed $item) {
 			$current->new_daughter({name => $blessed});
@@ -163,7 +143,7 @@ sub build_tree
 		{
 			$current->name('@$' . $name);
 
-			$self->build_tree(_gen_id($item), $_, $current->new_daughter) for @$item;
+			build_tree(_gen_id($item), $_, $current->new_daughter) for @$item;
 		}
 		elsif ($ref =~ /^CODE/)
 		{
@@ -175,8 +155,8 @@ sub build_tree
 			$current->name('%$' . $name);
 			for my $key (sort keys %$item)
 			{
-				$self->build_tree($key, $key, my $d = $current->new_daughter);
-				$self->build_tree($key, $$item{$key}, $d->new_daughter);
+				build_tree($key, $key, my $d = $current->new_daughter);
+				build_tree($key, $$item{$key}, $d->new_daughter);
 			}
 		}
 		elsif ($ref =~ /^SCALAR/)
@@ -186,16 +166,13 @@ sub build_tree
 		else
 		{
 			$current->name("Object: $name");
-			$self->build_tree(_gen_id($item), $$item, $current->new_daughter);
+			build_tree(_gen_id($item), $$item, $current->new_daughter);
 		}
 	}
 	else
 	{
 		$current->name($item);
 	}
-
-	return $self;
-
 }
 
 # -----------------------------------------------
@@ -227,7 +204,7 @@ sub create
 		 },
 		);
 
-	$self->build_tree($arg{name} => $arg{thing}, $self->current);
+	build_tree($arg{name} => $arg{thing}, $self->tree);
 	$self -> tree -> attributes({record => address($self -> tree -> address)});
 	$self -> graph -> add_node(color => 'green', name => address($self -> tree -> address), label => $self -> tree -> name, shape => 'doubleoctagon');
 	$self -> build_graph({$self -> tree -> address => 1}, $self -> tree);
