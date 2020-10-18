@@ -205,13 +205,12 @@ sub create
 		);
 
 	build_tree($arg{name} => $arg{thing}, $self->tree);
-	$self -> tree -> attributes({record => address($self -> tree -> address)});
-	$self -> graph -> add_node(color => 'green', name => address($self -> tree -> address), label => $self -> tree -> name, shape => 'doubleoctagon');
-	$self -> build_graph({$self -> tree -> address => 1}, $self -> tree);
-
+	my $a2 = address(my $a1 = $self->tree->address);
+	$self->tree->attributes({record => $a2});
+	$self->graph->add_node(color => 'green', name => $a2, label => $self->tree->name, shape => 'doubleoctagon');
+	$self->build_graph({$a1 => 1}, $self->tree);
 	return $self;
-
-}	# End of create.
+}
 
 # -----------------------------------------------
 
