@@ -132,30 +132,6 @@ sub build_tree {
 sub create
 {
 	my($self, %arg) = @_;
-	my(%form) =
-		(
-		 '@' =>
-		 {
-			 color => 'brown',
-			 shape => 'house',
-		 },
-		 '%' =>
-		 {
-			 color => 'blue',
-			 shape => 'doubleoctagon',
-		 },
-		 '$' =>
-		 {
-			 color => 'black',
-			 shape => 'box',
-		 },
-		 '&' =>
-		 {
-			 color => 'green',
-			 shape => 'ellipse',
-		 },
-		);
-
 	$self->tree(build_tree($arg{name} => $arg{thing}));
 	my $a2 = address(my $a1 = $self->tree->address);
 	$self->graph->add_node(color => 'green', name => $a2, label => $self->tree->name, shape => 'doubleoctagon');
