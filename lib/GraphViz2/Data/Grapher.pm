@@ -135,13 +135,6 @@ sub build_graph
 
 		$self -> build_graph($seen, $_) for @child;
 	}
-	elsif (! $$seen{$node -> address})
-	{
-		$$seen{$node -> address} = 1;
-
-		$self -> graph -> add_node(name => address($node -> address), label => $node -> name, shape => 'circle');
-		$self -> graph -> add_edge(from => ${$mother -> attributes}{record}, to => address($node -> address) );
-	}
 
 	return $self;
 
